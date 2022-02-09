@@ -33,15 +33,7 @@ defmodule AdventOfCode.Day2 do
     exclusive_or(pos1 == char, pos2 == char)
   end
 
-  def part1 do
-    input()
-    |> Enum.map(&is_valid_part1?(&1))
-    |> Enum.count(& &1)
-  end
+  def part1, do: input() |> Enum.count(&is_valid_part1?/1)
 
-  def part2 do
-    input()
-    |> Enum.map(&is_valid_part2?(&1))
-    |> Enum.count(& &1)
-  end
+  def part2, do: input() |> Enum.count(&is_valid_part2?/1)
 end
