@@ -15,12 +15,11 @@ defmodule AdventOfCode.Day2 do
   end
 
   def is_valid_part1?({min, max, char, pass}) do
-    occurences = pass
+    pass
     |> String.graphemes()
     |> Enum.frequencies()
     |> Map.get(char, -1)
-
-    occurences >= min and occurences <= max
+    |> then(&(&1 >= min and &1 <= max))
   end
 
   def exclusive_or(arg1, arg2) do
@@ -28,7 +27,7 @@ defmodule AdventOfCode.Day2 do
   end
 
   def is_valid_part2?({min, max, char, pass}) do
-    pos1 = String.at(pass, min - 1) 
+    pos1 = String.at(pass, min - 1)
     pos2 = String.at(pass, max - 1)
 
     exclusive_or(pos1 == char, pos2 == char)
@@ -36,13 +35,13 @@ defmodule AdventOfCode.Day2 do
 
   def part1 do
     input()
-    |> Enum.map(&(is_valid_part1?(&1)))
-    |> Enum.count(&(&1))  
+    |> Enum.map(&is_valid_part1?(&1))
+    |> Enum.count(& &1)
   end
 
   def part2 do
     input()
-    |> Enum.map(&(is_valid_part2?(&1)))
-    |> Enum.count(&(&1))  
+    |> Enum.map(&is_valid_part2?(&1))
+    |> Enum.count(& &1)
   end
 end
