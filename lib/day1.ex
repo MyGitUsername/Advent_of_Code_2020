@@ -1,4 +1,7 @@
-defmodule AdventOfCode.Day01 do
+defmodule AdventOfCode.Day1 do
+  @moduledoc """
+  Documentation for `AdventOfCode.Day1`.
+  """
   @goal 2020
 
   def list do
@@ -18,11 +21,10 @@ defmodule AdventOfCode.Day01 do
 
   def part2 do
     perms = for x <- list(), y <- list(), x + y < @goal, do: [x, y]
+    three_sum = &(if &1 + &2 + &3 == @goal, do: &1 * &2 * &3)
 
-      Enum.find_value(perms, fn [x, y] ->
-        Enum.find_value(list(), fn z ->
-          if x + y + z == @goal, do: {x, y, z}
-        end)
-      end)
+    Enum.find_value(perms, fn [x, y] ->
+      Enum.find_value(list(), fn z -> three_sum.(x, y, z) end)
+    end)
   end
 end
