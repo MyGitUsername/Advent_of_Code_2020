@@ -1,12 +1,15 @@
 defmodule AdventOfCode.Day01 do
+  @goal 2020
+
   def list do
-    File.read!("input.txt")
+    "priv/day1/input.txt"
+    |> File.read!()
     |> String.split("\n", trim: true)
     |> Enum.map(&String.to_integer/1)
   end
 
   def compliments do
-    Enum.map(list(), fn li -> 2020 - li end)
+    Enum.map(list(), fn li -> @goal - li end)
   end
 
   def part1 do
@@ -14,16 +17,12 @@ defmodule AdventOfCode.Day01 do
   end
 
   def part2 do
-    perms = for x <- list(), y <- list(), x + y < 2020, do: [x, y]
+    perms = for x <- list(), y <- list(), x + y < @goal, do: [x, y]
 
       Enum.find_value(perms, fn [x, y] ->
         Enum.find_value(list(), fn z ->
-          if x + y + z == 2020, do: {x, y, z}
+          if x + y + z == @goal, do: {x, y, z}
         end)
       end)
   end
 end
-
-IO.inspect(AdventOfCode.Day01.part1())
-IO.inspect(AdventOfCode.Day01.part2())
-
