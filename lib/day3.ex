@@ -3,6 +3,7 @@ defmodule AdventOfCode.Day3 do
   Documentation for `AdventOfCode.Day3`.
   """
 
+  @slopes [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
   @slope {3, 1}
 
   def input do
@@ -47,5 +48,8 @@ defmodule AdventOfCode.Day3 do
   end
 
   def part2 do
+    @slopes
+    |> Enum.map(&traverse(0, 0, &1, 0))
+    |> Enum.reduce(&*/2)
   end
 end
