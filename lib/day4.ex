@@ -18,7 +18,7 @@ defmodule AdventOfCode.Day4 do
     |> Map.new(&List.to_tuple/1)
   end
 
-  def is_valid?(passport) do
+  def required_fields?(passport) do
     case map_size(passport) do
       8 -> true
       7 -> not Map.has_key?(passport, "cid")
@@ -28,7 +28,7 @@ defmodule AdventOfCode.Day4 do
 
   def part1 do
     input()
-    |> Enum.count(&is_valid?/1)
+    |> Enum.count(&required_fields?/1)
   end
 
   def part2 do
