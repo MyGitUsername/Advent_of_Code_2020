@@ -19,7 +19,6 @@ defmodule AdventOfCode.Day4 do
   end
 
   def is_valid?(passport) do
-    # passport |> IO.inspect
     case map_size(passport) do
       8 -> true
       7 -> not Map.has_key?(passport, "cid")
