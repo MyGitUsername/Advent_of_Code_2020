@@ -4,6 +4,12 @@ defmodule AdventOfCode.Day4 do
   """
 
   @ecl ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+  @byr_range 1920..2002
+  @iyr_range 2010..2020
+  @eyr_range 2020..2030
+  @inches_range 59..76
+  @centimeters_range 150..193
+
   def input do
     "priv/day4/input.txt"
     |> File.read!()
@@ -17,31 +23,35 @@ defmodule AdventOfCode.Day4 do
     |> String.split([" ", ":"], trim: true)
     |> Enum.chunk_every(2)
     |> Map.new(&List.to_tuple/1)
+    |> cast()
   end
 
-  def valid_byr?(byr), do: byr >= 1920 and byr <= 2002
+  defp cast(%{"byr" => byr, "iyr" => iyr, "eyr" => eyr} = passport) do
+    Map.merge(passport, %{
+      "byr" => String.to_integer(byr),
+      "iyr" => String.to_integer(iyr),
+      "eyr" => String.to_integer(eyr)
+    })
+  end
 
-  def valid_iyr?(iyr), do: iyr >= 2010 and iyr <= 2020
+  defp cast(passport), do: passport
 
-  def valid_eyr?(eyr), do: eyr >= 2020 and eyr <= 2030
+  defp valid?({"byr", byr}), do: byr in @byr_range
+  defp valid?({"iyr", iyr}), do: iyr in @iyr_range
+  defp valid?({"eyr", eyr}), do: eyr in @eyr_range
+  defp valid?({"ecl", ecl}), do: Enum.member?(@ecl, ecl)
+  defp valid?({"pid", pid}), do: ~r/^[0-9]{9}$/ |> Regex.match?(pid)
+  defp valid?({"hcl", hcl}), do: ~r/^#[0-9,a-f]{6}$/ |> Regex.match?(hcl)
 
-  def valid_inches?(int), do: int >= 59 and int <= 76
-  
-  def valid_centimeters?(int), do: int >= 150 and int <= 193
-
-  def valid_hgt?(hgt) do
+  defp valid?({"hgt", hgt}) do
     case hgt do
-      ^hgt = <<num::binary-size(2), "i", "n">> -> valid_inches?(String.to_integer(num))
-      ^hgt = <<num::binary-size(3), "c", "m">> -> valid_centimeters?(String.to_integer(num))
+      <<num::binary-size(2), "i", "n">> -> String.to_integer(num) in @inches_range
+      <<num::binary-size(3), "c", "m">> -> String.to_integer(num) in @centimeters_range
       _ -> false
     end
   end
 
-  def valid_hcl?(hcl), do: ~r/^#[0-9,a-f]{6}$/ |> Regex.match?(hcl) 
-
-  def valid_ecl?(ecl), do: Enum.member?(@ecl, ecl) 
-
-  def valid_pid?(pid), do: ~r/^[0-9]{9}$/ |> Regex.match?(pid)
+  defp valid?({"cid", _}), do: true
 
   def required_fields?(passport) do
     case map_size(passport) do
@@ -52,16 +62,7 @@ defmodule AdventOfCode.Day4 do
   end
 
   def valid_fields?(passport) do
-    Enum.map(passport, fn
-      {"byr", v} -> valid_byr?(String.to_integer(v))
-      {"iyr", v} -> valid_iyr?(String.to_integer(v))
-      {"eyr", v} -> valid_eyr?(String.to_integer(v))
-      {"hgt", v} -> valid_hgt?(v)
-      {"hcl", v} -> valid_hcl?(v)
-      {"ecl", v} -> valid_ecl?(v)
-      {"pid", v} -> valid_pid?(v)
-      {"cid", _v} -> true
-    end) 
+    Enum.map(passport, &valid?/1)
     |> Enum.all?()
   end
 
@@ -72,8 +73,8 @@ defmodule AdventOfCode.Day4 do
 
   def part2 do
     input()
-    |> Enum.filter(&required_fields?/1)
-    |> Enum.filter(&valid_fields?/1)
-    |> Enum.count()
+    |> Enum.count(fn pp ->
+      required_fields?(pp) and valid_fields?(pp)
+    end)
   end
 end
