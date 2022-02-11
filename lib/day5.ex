@@ -14,30 +14,15 @@ defmodule AdventOfCode.Day5 do
     |> String.split("\n", trim: true)
   end
 
-  def lower_half(dividend), do: div(dividend, 2)
-  def upper_half(dividend), do: round(dividend / 2)
+  def mid(first..last), do: div(first + last, 2)
 
-  def seat(<<char::utf8>>, first..last) do
-    case char do
-      ?F -> first
-      ?L -> first
-      ?R -> last
-      ?B -> last
-    end
-  end
+  def seat("F" <> tail, first.._last = range), do: seat(tail, first..mid(range))
+  def seat("L" <> tail, first.._last = range), do: seat(tail, first..mid(range))
+  def seat("B" <> tail, _first..last = range), do: seat(tail, (mid(range) + 1)..last)
+  def seat("R" <> tail, _first..last = range), do: seat(tail, (mid(range) + 1)..last)
+  def seat("", first.._last), do: first
 
-  def seat(<<head, tail::binary>>, first..last) do
-    mid = first + last
-
-    case head do
-      ?F -> seat(tail, first..lower_half(mid))
-      ?L -> seat(tail, first..lower_half(mid))
-      ?B -> seat(tail, upper_half(mid)..last)
-      ?R -> seat(tail, upper_half(mid)..last)
-    end
-  end
-
-  def part1 do
+  def seat_ids do
     input()
     |> Enum.map(&String.split_at(&1, 7))
     |> Enum.map(fn {row_bsp, col_bsp} ->
@@ -45,9 +30,15 @@ defmodule AdventOfCode.Day5 do
       col = seat(col_bsp, @col_range)
       row * 8 + col
     end)
-    |> Enum.max()
   end
 
+  def part1, do: seat_ids() |> Enum.max()
+
   def part2 do
+    seat_ids()
+    |> Enum.sort()
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.find(nil, fn [e1, e2] -> e2 - e1 == 2 end)
+    |> then(fn [e1, _e2] -> e1 + 1 end)
   end
 end
