@@ -1,7 +1,7 @@
 defmodule AdventOfCode.Day6 do
   @moduledoc """
-    Documentation for `AdventOfCode.Day6`.
-    """
+  Documentation for `AdventOfCode.Day6`.
+  """
 
   def input do
     "priv/day6/sample.txt"
@@ -10,7 +10,7 @@ defmodule AdventOfCode.Day6 do
   end
 
   def group_to_answer_set(group) do
-    group 
+    group
     |> Enum.flat_map(&String.graphemes/1)
     |> MapSet.new()
   end
@@ -28,7 +28,7 @@ defmodule AdventOfCode.Day6 do
   def part2 do
     Enum.zip(groups(), answer_sets())
     |> Enum.flat_map(fn {group, answer_set} ->
-      for l <- answer_set  do
+      for l <- answer_set do
         Enum.all?(group, fn person -> String.contains?(person, l) end)
       end
     end)
