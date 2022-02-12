@@ -4,7 +4,7 @@ defmodule AdventOfCode.Day6 do
   """
 
   def input do
-    "priv/day6/sample.txt"
+    "priv/day6/input.txt"
     |> File.read!()
     |> String.split("\n\n", trim: true)
   end
@@ -22,7 +22,7 @@ defmodule AdventOfCode.Day6 do
   def part1 do
     answer_sets()
     |> Enum.map(&MapSet.size/1)
-    |> Enum.reduce(&+/2)
+    |> Enum.sum()
   end
 
   def part2 do
