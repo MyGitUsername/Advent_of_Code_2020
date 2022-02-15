@@ -12,48 +12,69 @@ defmodule AdventOfCode.Day7 do
     |> String.split(".\n", trim: true)
   end
 
-  def rules do
+  def rules() do
     input()
     |> Enum.map(&String.replace(&1, [" bags", " bag"], "", trim: true))
     |> Enum.map(&String.split(&1, [" contain ", ", "], trim: true))
     |> Map.new(fn [bag | contents] -> {bag, contents} end)
+    |> Map.map(fn {_k, contents} ->
+      Enum.map(contents, fn
+        <<n::utf8, " ">> <> bag -> {bag, String.to_integer(<<n>>)}
+        bag -> {bag, nil}
+      end)
+    end)
   end
 
-  def contain_gold?(@no), do: false
-  def contain_gold?(@sg), do: true
-  def contain_gold?(<<_n::utf8, " ">> <> bags), do: contain_gold?(bags)
-  def contain_gold?(bags) when is_binary(bags), do: contain_gold?(rules()[bags])
-  def contain_gold?([head | []]), do: contain_gold?(head)
-  def contain_gold?([head | tail]), do: contain_gold?(head) or contain_gold?(tail)
+  @doc """
+  Use bread first search to traverse tree. 
+  Returns a list of all visited nodes represented 
+  as {node_name, number of bags current node, 
+  total number of parent bags}.  Note, the total
+  number of parent bags does not include the root
+  node.
 
-  def traverse(@no, acc), do: acc
-  def traverse(@sg, acc), do: List.insert_at(acc, 0, @sg)
-  def traverse(<<_n::utf8, " ">> <> bags, acc), do: traverse(bags, acc)
-  def traverse(bags, acc) when is_binary(bags) do
-    traverse(rules()[bags], List.insert_at(acc, 0, bags))
-  end
-  def traverse([head | []], acc) do 
-    traverse(head, acc)
-  end
-  def traverse([head | tail], acc) do
-    traverse(head, acc) ++ traverse(tail, acc)
-  end
+  For example: 
+     {A, 1}
+      //\
+     /  \ 
+  {B,2}  {C, 3}
+    \
+     \
+     {D, 4}
+     /
+    / 
+  {E, 5}
 
-  def part1_version_two do
-    rules()
-    |> Map.delete(@sg)
-    |> Enum.map(fn {k, _v} -> traverse(k, []) end)
-    |> IO.inspect()
-    |> Enum.count(&Enum.any?(&1, fn x -> x == @sg end))
+  This last node {E, 5} would be represented as
+  {E, 5, 8} when the BFS is printed.
+  """
+  def bfs(start), do: bfs([start], [start])
+  def bfs([], visited), do: visited
+
+  def bfs(queue, visited) do
+    {{node, num_bags, num_parents}, queue} = List.pop_at(queue, 0)
+
+    children =
+      rules()[node]
+      |> Enum.reject(fn {k, _v} -> k == @no end)
+      |> Enum.map(fn {k, v} -> {k, v, num_bags * num_parents} end)
+
+    bfs(queue ++ children, visited ++ children)
   end
 
   def part1 do
     rules()
-    |> Enum.map(fn {k, _v} -> if k != @sg, do: contain_gold?(k) end)
-    |> Enum.count(&(&1 == true))
+    |> Map.delete(@sg)
+    |> Enum.map(fn {k, _v} -> bfs({k, 1, 1}) end)
+    |> Enum.count(&Enum.any?(&1, fn {name, _num_bags, _num_parents} -> name == @sg end))
   end
 
   def part2 do
+    bfs({@sg, 1, 1})
+    |> Enum.reduce(0, fn {_name, num_bags, num_parents}, acc ->
+      acc + num_bags * num_parents
+    end)
+    # subtract gold bag which contains all other bags 
+    |> then(&(&1 - 1))
   end
 end
-AdventOfCode.Day7.part1() |> IO.inspect
