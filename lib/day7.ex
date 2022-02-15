@@ -35,7 +35,7 @@ defmodule AdventOfCode.Day7 do
 
   For example: 
      {A, 1}
-      //\
+      /\
      /  \ 
   {B,2}  {C, 3}
     \
