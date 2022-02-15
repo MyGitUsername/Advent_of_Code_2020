@@ -1,6 +1,6 @@
 # Aoc2020
 
-**TODO: Add description**
+Advent of Code 2020 -- solved with Elixir.
 
 ## Installation
 
