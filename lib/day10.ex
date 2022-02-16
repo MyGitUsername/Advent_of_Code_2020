@@ -19,10 +19,10 @@ defmodule AdventOfCode.Day10 do
 
   def part1 do
     test_adapters(input() ++ [device_adapter()], [])
-    |> then(fn list -> 
-      (Enum.count(list, & &1 == 3) * Enum.count(list, & &1 == 1)) 
+    |> then(fn list ->
+      Enum.count(list, &(&1 == 3)) * Enum.count(list, &(&1 == 1))
     end)
-  end 
+  end
 
   def part2 do
   end
