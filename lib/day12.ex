@@ -24,21 +24,52 @@ defmodule AdventOfCode.Day12 do
   defp rotate(dir, :L, 270), do: @ninety_degrees_right[dir]
   defp rotate(dir, :R, 90), do: @ninety_degrees_right[dir]
 
+  def rotate_waypoint(waypoint, side, degrees) do
+    Enum.map(waypoint, fn {dir, pos} ->
+      new_dir = rotate(dir, side, degrees)
+      {new_dir, pos}
+    end)
+  end
+
+  def move_forward(waypoint, position, units) do
+    Enum.map(position, fn {dir, pos} ->
+      {dir, pos + waypoint[dir] * units}
+    end)
+  end
+
   def part1 do
-    Enum.reduce(input(), %{E: 0, W: 0, N: 0, S: 0, dir: :E}, fn {k, v}, instrct ->
-      case k do
-        :N -> Map.update!(instrct, :N, &(&1 + v))
-        :S -> Map.update!(instrct, :S, &(&1 + v))
-        :E -> Map.update!(instrct, :E, &(&1 + v))
-        :W -> Map.update!(instrct, :W, &(&1 + v))
-        :F -> Map.update!(instrct, instrct.dir, &(&1 + v))
-        :L -> %{instrct | dir: rotate(instrct.dir, :L, v)}
-        :R -> %{instrct | dir: rotate(instrct.dir, :R, v)}
+    Enum.reduce(input(), %{E: 0, W: 0, N: 0, S: 0, dir: :E}, fn {action, value}, instrct ->
+      case action do
+        :N -> Map.update!(instrct, :N, &(&1 + value))
+        :S -> Map.update!(instrct, :S, &(&1 + value))
+        :E -> Map.update!(instrct, :E, &(&1 + value))
+        :W -> Map.update!(instrct, :W, &(&1 + value))
+        :F -> Map.update!(instrct, instrct.dir, &(&1 + value))
+        :L -> %{instrct | dir: rotate(instrct.dir, :L, value)}
+        :R -> %{instrct | dir: rotate(instrct.dir, :R, value)}
       end
     end)
     |> then(fn map -> abs(map[:S] - map[:N]) + abs(map[:E] - map[:W]) end)
   end
 
   def part2 do
+    Enum.reduce(
+      input(),
+      %{waypoint: %{E: 10, W: 0, N: 1, S: 0}, position: %{E: 0, W: 0, N: 0, S: 0}},
+      fn {action, value}, instrct ->
+        case action do
+          :N -> update_in(instrct, [:waypoint, :N], &(&1 + value))
+          :S -> update_in(instrct, [:waypoint, :S], &(&1 + value))
+          :E -> update_in(instrct, [:waypoint, :E], &(&1 + value))
+          :W -> update_in(instrct, [:waypoint, :W], &(&1 + value))
+          :F -> %{instrct | position: move_forward(instrct.waypoint, instrct.position, value)}
+          :L -> %{instrct | waypoint: rotate_waypoint(instrct.waypoint, :L, value)}
+          :R -> %{instrct | waypoint: rotate_waypoint(instrct.waypoint, :R, value)}
+        end
+      end
+    )
+    |> then(fn map ->
+      abs(map.position[:S] - map.position[:N]) + abs(map.position[:E] - map.position[:W])
+    end)
   end
 end
