@@ -91,31 +91,31 @@ defmodule AdventOfCode.Day11 do
   end
 
   defp total_occupied(grid) do
-    Enum.count(grid, fn {{_row, _col}, sym} ->
-      if sym == @occupied, do: @occupied
+    Enum.count(grid, fn {{_row, _col}, status} ->
+      if status == @occupied, do: true
     end)
   end
 
-  defp transform(grid, {{_row, _col}, @empty} = seat, adjacent, _min) do
-    if adjacent.(grid, seat) == 0, do: @occupied, else: @empty
+  defp transform(grid, {{_row, _col}, @empty} = seat, num_occupied_adjacent, _min) do
+    if num_occupied_adjacent.(grid, seat) == 0, do: @occupied, else: @empty
   end
 
-  defp transform(grid, {{_row, _col}, @occupied} = seat, adjacent, min) do
-    if adjacent.(grid, seat) >= min, do: @empty, else: @occupied
+  defp transform(grid, {{_row, _col}, @occupied} = seat, num_occupied_adjacent, min) do
+    if num_occupied_adjacent.(grid, seat) >= min, do: @empty, else: @occupied
   end
 
-  defp transform(_grid, {{_row, _col}, @floor}, _adjacent, _min), do: @floor
+  defp transform(_grid, {{_row, _col}, @floor}, _num_occupied_adjacent, _min), do: @floor
 
-  def step(grid, occupied_adjacent, min) do
+  def step(grid, strategy, min) do
     next_grid =
       Map.map(grid, fn seat ->
-        transform(grid, seat, occupied_adjacent, min)
+        transform(grid, seat, strategy, min)
       end)
 
     if total_occupied(grid) == total_occupied(next_grid) do
       total_occupied(grid)
     else
-      step(next_grid, occupied_adjacent, min)
+      step(next_grid, strategy, min)
     end
   end
 
