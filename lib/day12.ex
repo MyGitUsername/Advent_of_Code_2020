@@ -3,6 +3,10 @@ defmodule AdventOfCode.Day12 do
   Documentation for `AdventOfCode.Day12`.
   """
 
+  @ninety_degrees_left %{N: :W, S: :E, E: :N, W: :S}
+  @ninety_degrees_right %{N: :E, S: :W, E: :S, W: :N}
+  @one_hundred_eighty_degrees %{N: :S, S: :N, E: :W, W: :E}
+
   def input do
     "priv/day12/input.txt"
     |> File.read!()
@@ -11,31 +15,14 @@ defmodule AdventOfCode.Day12 do
     |> Enum.map(fn {k, v} -> {String.to_atom(k), String.to_integer(v)} end)
   end
 
-  defp rotate(:N, :L, 90), do: :W
-  defp rotate(:S, :L, 90), do: :E
-  defp rotate(:E, :L, 90), do: :N
-  defp rotate(:W, :L, 90), do: :S
-  defp rotate(:N, :L, 180), do: :S
-  defp rotate(:S, :L, 180), do: :N
-  defp rotate(:E, :L, 180), do: :W
-  defp rotate(:W, :L, 180), do: :E
-  defp rotate(:N, :L, 270), do: :E
-  defp rotate(:S, :L, 270), do: :W
-  defp rotate(:E, :L, 270), do: :S
-  defp rotate(:W, :L, 270), do: :N
+  defp rotate(dir, :L, 90), do: @ninety_degrees_left[dir]
+  defp rotate(dir, :R, 270), do: @ninety_degrees_left[dir]
 
-  defp rotate(:N, :R, 270), do: :W
-  defp rotate(:S, :R, 270), do: :E
-  defp rotate(:E, :R, 270), do: :N
-  defp rotate(:W, :R, 270), do: :S
-  defp rotate(:N, :R, 180), do: :S
-  defp rotate(:S, :R, 180), do: :N
-  defp rotate(:E, :R, 180), do: :W
-  defp rotate(:W, :R, 180), do: :E
-  defp rotate(:N, :R, 90), do: :E
-  defp rotate(:S, :R, 90), do: :W
-  defp rotate(:E, :R, 90), do: :S
-  defp rotate(:W, :R, 90), do: :N
+  defp rotate(dir, :L, 180), do: @one_hundred_eighty_degrees[dir]
+  defp rotate(dir, :R, 180), do: @one_hundred_eighty_degrees[dir]
+
+  defp rotate(dir, :L, 270), do: @ninety_degrees_right[dir]
+  defp rotate(dir, :R, 90), do: @ninety_degrees_right[dir]
 
   def part1 do
     Enum.reduce(input(), %{E: 0, W: 0, N: 0, S: 0, dir: :E}, fn {k, v}, instrct ->
