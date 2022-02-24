@@ -15,75 +15,39 @@ defmodule AdventOfCode.Day11 do
     |> String.split("\n", trim: true)
   end
 
-  def occupied_adjacent_2(grid, {{row, col}, _}) do
-    Enum.count_until(
-      grid,
-      fn seat ->
-        coor = elem(seat, 0)
-
-        cond do
-          coor == {row + 1, col} ->
-            next_occupied(grid, next_seat(grid, row, col, 1, 0), 1, 0)
-
-          coor == {row - 1, col} ->
-            next_occupied(grid, next_seat(grid, row, col, -1, 0), -1, 0)
-
-          coor == {row + 1, col + 1} ->
-            next_occupied(grid, next_seat(grid, row, col, 1, 1), 1, 1)
-
-          coor == {row - 1, col - 1} ->
-            next_occupied(grid, next_seat(grid, row, col, -1, -1), -1, -1)
-
-          coor == {row, col + 1} ->
-            next_occupied(grid, next_seat(grid, row, col, 0, 1), 0, 1)
-
-          coor == {row, col - 1} ->
-            next_occupied(grid, next_seat(grid, row, col, 0, -1), 0, -1)
-
-          coor == {row - 1, col + 1} ->
-            next_occupied(grid, next_seat(grid, row, col, -1, 1), -1, 1)
-
-          coor == {row + 1, col - 1} ->
-            next_occupied(grid, next_seat(grid, row, col, 1, -1), 1, -1)
-
-          true ->
-            false
-        end
-      end,
-      5
-    )
+  defp occupied_adjacent_2(grid, {{row, col}, _}) do
+    [{1, 0}, {-1, 0}, {1, 1}, {-1, -1}, {0, 1}, {0, -1}, {-1, 1}, {1, -1}]
+    |> Enum.filter(fn {row_inc, col_inc} ->
+      occupied?(grid, next_seat(grid, row, col, row_inc, col_inc), row_inc, col_inc)
+    end)
+    |> Enum.count_until(5)
   end
 
-  def occupied_adjacent_1(grid, {{row, col}, _}) do
-    Enum.count_until(
-      grid,
-      fn pos ->
-        cond do
-          pos == {{row + 1, col}, @occupied} -> true
-          pos == {{row - 1, col}, @occupied} -> true
-          pos == {{row + 1, col + 1}, @occupied} -> true
-          pos == {{row - 1, col - 1}, @occupied} -> true
-          pos == {{row, col + 1}, @occupied} -> true
-          pos == {{row, col - 1}, @occupied} -> true
-          pos == {{row - 1, col + 1}, @occupied} -> true
-          pos == {{row + 1, col - 1}, @occupied} -> true
-          true -> false
-        end
-      end,
-      4
-    )
+  defp occupied_adjacent_1(grid, {{row, col}, _}) do
+    [
+      {{row + 1, col}, @occupied},
+      {{row - 1, col}, @occupied},
+      {{row + 1, col + 1}, @occupied},
+      {{row - 1, col - 1}, @occupied},
+      {{row, col + 1}, @occupied},
+      {{row, col - 1}, @occupied},
+      {{row - 1, col + 1}, @occupied},
+      {{row + 1, col - 1}, @occupied}
+    ]
+    |> Enum.filter(fn adjacent -> Enum.member?(grid, adjacent) end)
+    |> Enum.count_until(4)
   end
 
-  defp next_occupied(_grid, {{row, col}, _status}, _row_inc, _col_inc)
+  defp occupied?(_grid, {{row, col}, _status}, _row_inc, _col_inc)
        when row < 0 or row >= @col_len or col < 0 or col >= @row_len do
     false
   end
 
-  defp next_occupied(_grid, {{_row, _col}, @empty}, _row_inc, _col_inc), do: false
-  defp next_occupied(_grid, {{_row, _col}, @occupied}, _row_inc, _col_inc), do: true
+  defp occupied?(_grid, {{_row, _col}, @empty}, _row_inc, _col_inc), do: false
+  defp occupied?(_grid, {{_row, _col}, @occupied}, _row_inc, _col_inc), do: true
 
-  defp next_occupied(grid, {{row, col}, @floor}, row_inc, col_inc) do
-    next_occupied(grid, next_seat(grid, row, col, row_inc, col_inc), row_inc, col_inc)
+  defp occupied?(grid, {{row, col}, @floor}, row_inc, col_inc) do
+    occupied?(grid, next_seat(grid, row, col, row_inc, col_inc), row_inc, col_inc)
   end
 
   defp next_seat(grid, row, col, row_inc, col_inc) do
@@ -106,7 +70,7 @@ defmodule AdventOfCode.Day11 do
 
   defp transform(_grid, {{_row, _col}, @floor}, _num_occupied_adjacent, _min), do: @floor
 
-  def step(grid, strategy, min) do
+  defp step(grid, strategy, min) do
     next_grid =
       Map.map(grid, fn seat ->
         transform(grid, seat, strategy, min)
