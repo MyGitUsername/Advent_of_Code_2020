@@ -17,21 +17,19 @@ defmodule AdventOfCode.Day12 do
 
   defp rotate(dir, :L, 90), do: @ninety_degrees_left[dir]
   defp rotate(dir, :R, 270), do: @ninety_degrees_left[dir]
-
   defp rotate(dir, :L, 180), do: @one_hundred_eighty_degrees[dir]
   defp rotate(dir, :R, 180), do: @one_hundred_eighty_degrees[dir]
-
   defp rotate(dir, :L, 270), do: @ninety_degrees_right[dir]
   defp rotate(dir, :R, 90), do: @ninety_degrees_right[dir]
 
-  def rotate_waypoint(waypoint, side, degrees) do
+  defp rotate_waypoint(waypoint, side, degrees) do
     Enum.map(waypoint, fn {dir, pos} ->
       new_dir = rotate(dir, side, degrees)
       {new_dir, pos}
     end)
   end
 
-  def move_forward(waypoint, position, units) do
+  defp move_forward(waypoint, position, units) do
     Enum.map(position, fn {dir, pos} ->
       {dir, pos + waypoint[dir] * units}
     end)
